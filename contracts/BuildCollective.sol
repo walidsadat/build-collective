@@ -4,7 +4,6 @@ pragma experimental ABIEncoderV2;
 import "./Ownable.sol";
 
 contract BuildCollective is Ownable {
-
   //Structs
   struct User {
     string username;
@@ -37,6 +36,7 @@ contract BuildCollective is Ownable {
 
   struct Bountie {
     uint256 id;
+    uint256 projectId;
     address opener;
     address payable solver;
     string link;
@@ -65,7 +65,7 @@ contract BuildCollective is Ownable {
 
   function signUp(string memory username) public returns (User memory) {
     require(bytes(username).length > 0);
-    users[msg.sender] = User(username, 0, true);
+    users[msg.sender] = User(username, 100, true);
     usersAddresses.push(msg.sender);
     emit UserSignedUp(msg.sender, users[msg.sender]);
     return users[msg.sender];
@@ -92,12 +92,12 @@ contract BuildCollective is Ownable {
   }
 
   //Project
-  function getProjects(address owner) public view returns (Project[] memory){
+  function userProjects(address owner) public view returns (Project[] memory){
     return projects[owner];
   }
 
   function getProjectById(address owner, uint256 id) public view returns (Project memory) {
-    Project[] memory projects = getProjects(owner);
+    Project[] memory projects = userProjects(owner);
     for (uint i = 0; i < projects.length; i++){
       if (projects[i].id == id){
         return projects[i];
@@ -109,6 +109,14 @@ contract BuildCollective is Ownable {
   function createProject(string memory name, address[] memory contributors, uint256 balance, bool belongsToUser, string memory link) public returns (Project memory){
     require(users[msg.sender].registered);
     require(bytes(name).length > 0);
+    if (belongsToUser){
+      require(users[msg.sender].balance >= balance);
+      users[msg.sender].balance -= balance;
+    }
+    else{
+      require(entreprises[msg.sender].balance >= balance);
+      entreprises[msg.sender].balance -= balance;
+    }
     CptProject++;
     Project memory project = Project(CptProject, name, msg.sender, contributors, balance, belongsToUser, link);
     projects[msg.sender].push(project);
@@ -134,10 +142,16 @@ contract BuildCollective is Ownable {
   }
 
   function openBountie(address projectOwner, uint256 projectId, string memory link, uint256 reward) public returns (Bountie memory){
-    require(users[projectOwner].registered);
     require(users[msg.sender].registered);
     CptBountie++;
-    Bountie memory bountie = Bountie(CptBountie, msg.sender, address(0), link, reward, false);
+    for(uint i = 0; i < projects[owner].length; i++){
+      if(projects[owner][i].id == projectId){
+        require(projects[projectOwner][i].balance >= reward);
+        projects[projectOwner][i].balance -= reward;
+        break;
+      }
+    }
+    Bountie memory bountie = Bountie(CptBountie, projectId, msg.sender, address(0), link, reward, false);
     bounties[projectId].push(bountie);
     emit BountieOpened(msg.sender, bountie);
     return bountie;
@@ -146,9 +160,18 @@ contract BuildCollective is Ownable {
   function closeBountie(uint256 projectId, uint256 bountieId, address payable solver) public payable returns (bool){
     for (uint i = 0; i < bounties[projectId].length; i++){
       if (bounties[projectId][i].id == bountieId) {
-        bounties[projectId][i].resolved = true;
-        bounties[projectId][i].solver = solver;
-        return solver.send(bounties[projectId][i].reward);
+        for(uint j = 0; j < projects[bounties[projectId][i].opener].length; j++){
+          if(projects[bounties[projectId][i].opener][j].id == projectId){
+            for(uint k = 0; j < projects[bounties[projectId][i].opener][j].contributors.length; k++){
+              if(projects[bounties[projectId][i].opener][j].contributors[k] == solver){
+                bounties[projectId][i].resolved = true;
+                bounties[projectId][i].solver = solver;
+                solver.send(bounties[projectId][i].reward);
+                return true;
+              }
+            }
+          }
+        }
       }
     }
     return false;

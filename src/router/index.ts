@@ -9,9 +9,31 @@ const routes: Array<RouteRecordRaw> = [
     component: SignIn,
   },
   {
+    path: '/signup',
+    name: 'EntrepriseAccount',
+    component: () => import('@/views/EntrepriseAccount.vue'),
+  },
+  {
     path: '/account',
     name: 'Account',
     component: () => import('@/views/Account.vue'),
+  },
+  {
+    path: '/create-project',
+    name: 'createProject',
+    component: () => import('@/views/CreateProject.vue'),
+  },
+  {
+    path: '/fullrecap',
+    name: 'FullRecap',
+    component: () => import('@/views/FullRecap.vue'),
+    props: false,
+  },
+  {
+    path: '/open-bountie',
+    name: 'OpenBountie',
+    component: () => import('@/views/OpenBountie.vue'),
+    props: false,
   },
 ]
 

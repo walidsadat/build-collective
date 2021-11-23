@@ -1,5 +1,68 @@
 <template lang="html">
-  <div class="home" v-if="!account">
+  <div class="account" v-if="account">
+  <spacer :size="24" />
+    <card
+      title="Account information"
+      :gradient="true"
+    >
+      <div class="explanations">
+        <p><b>Username: </b>{{ account.username }}</p>
+        <p><b>Balance: </b>{{ account.balance }} tokens</p>
+      </div>
+    </card>
+    <spacer :size="24" />
+    <card
+      title="Entreprise"
+      v-if="entreprise"
+    >
+      <div class="explanations" v-if="entreprise">
+        <p><b>Name: </b>{{ entreprise.name }}</p>
+        <p><b>Owner: </b>{{ this.entrepriseOwner.username }}</p>
+        <div>
+          <b>Members: </b>
+          <p
+            v-for="member in entrepriseMembers"
+            v-bind:key="member"
+            style="padding-left: 10px"
+          >
+            {{ member }}
+          </p>
+        </div>
+        <p><b>Balance: </b>{{ entreprise.balance }} tokens</p>
+      </div>
+    </card>
+    <spacer :size="24" />
+    <card
+      title="Projects"
+      :subtitle="`You have ${projects.length} projects`"
+      v-if="projects"
+    >
+      <div v-for="project in projects" v-bind:key="project.name">
+        <about-project :project="project"></about-project>
+      </div>
+    </card>
+    <spacer :size="24" />
+    <div class="signedUp">
+      <card
+        title="Create an entreprise"
+        :blue="true"
+        v-if="!entreprise"
+      >
+        <router-link class="card-body" to="/signup">
+          Click here
+        </router-link>
+      </card>
+      <card
+        title="Create a project"
+        :blue="true"
+      >
+        <router-link class="card-body" to="/create-project">
+          Click here
+        </router-link>
+      </card>
+    </div>
+  </div>
+  <div class="home" v-else>
     <form @submit.prevent="signUp">
       <card
         title="Enter your username here"
@@ -14,37 +77,18 @@
       </card>
     </form>
   </div>
-  <div class="home" v-if="account">
-    <div class="card-home-wrapper">
-      <card
-        :title="account.username"
-        :subtitle="`${balance} Ξ\t\t${account.balance} Tokens`"
-        :gradient="true"
-      >
-        <div class="explanations">
-          This data has been fetched from the blockchain. You started by
-          connecting MetaMask, and you fetched your data by reading the
-          blockchain. Try to modify the code to see what's happening!
-        </div>
-        <div class="explanations">
-          On your account on the contract, you have
-          {{ account.balance }} tokens. If you click
-          <button class="button-link" @click="addTokens">here</button>, you can
-          add some token to your account. Just give it a try! And think to put
-          an eye on Ganache!
-        </div>
-      </card>
-    </div>
-  </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
+import Spacer from '@/components/Spacer.vue'
+import AboutProject from '@/components/AboutProject.vue'
 
 export default defineComponent({
-  components: { Card },
+  name: 'Account',
+  components: { AboutProject, Spacer, Card },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
@@ -55,7 +99,18 @@ export default defineComponent({
   data() {
     const account = null
     const username = ''
-    return { account, username }
+    const entrepriseOwner = { username: '', balance: 0 }
+    const entreprise = null
+    const entrepriseMembers: any[] = []
+    const projects: any[] = []
+    return {
+      account,
+      username,
+      entrepriseOwner,
+      entreprise,
+      entrepriseMembers,
+      projects,
+    }
   },
   methods: {
     async updateAccount() {
@@ -79,6 +134,43 @@ export default defineComponent({
     const { address, contract } = this
     const account = await contract.methods.user(address).call()
     if (account.registered) this.account = account
+    const entreprise = await contract.methods.entreprise(address).call()
+    if (entreprise.name) {
+      this.entreprise = entreprise
+      this.entrepriseOwner = await contract.methods
+        .user(entreprise.owner)
+        .call()
+      for (const address of entreprise.members) {
+        const member = await contract.methods.user(address).call()
+        this.entrepriseMembers.push(member.username)
+      }
+    }
+    const projects = await contract.methods.userProjects(address).call()
+    if (projects) {
+      for (const project of projects) {
+        let owner = project.belongsToUser
+          ? await contract.methods.user(project.owner).call()
+          : contract.methods.entreprise(project.owner).call()
+        let contributors = []
+        for (const address of project.contributors) {
+          const contributor = await contract.methods.user(address).call()
+          contributors.push(contributor.username)
+        }
+        this.projects.push({
+          id: project.id,
+          name: project.name,
+          owner: {
+            name: owner.name || null,
+            username: owner.username || null,
+            balance: owner.balance,
+          },
+          ownerAddress: project.owner,
+          belongsToUser: project.belongsToUser,
+          balance: project.balance,
+          contributors: contributors,
+        })
+      }
+    }
   },
 })
 </script>
@@ -92,6 +184,29 @@ export default defineComponent({
   justify-content: center;
   max-width: 500px;
   margin: auto;
+}
+
+.account {
+  margin: auto 24px auto 24px;
+}
+
+.signedUp {
+  display: grid;
+  align-items: center;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  grid-gap: 24px;
+}
+
+.card-body {
+  padding: 12px;
+  display: block;
+  font-family: inherit;
+  font-size: 1.2rem;
+  font-weight: inherit;
+  text-align: center;
+  color: inherit;
+  text-decoration: none;
+  font-variant: small-caps;
 }
 
 .explanations {

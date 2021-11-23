@@ -23,16 +23,16 @@
       <p><b>Balance: </b>{{ this.project.balance }} tokens</p>
       <b v-if="bounties.length > 0">Bounties: </b>
       <div v-for="bountie in this.bounties" v-bind:key="bountie.id">
-        <resume-bountie
+        <about-bountie
           :bountie="bountie"
           :projectId="project.id"
-        ></resume-bountie>
+        ></about-bountie>
       </div>
       <p>
         <a href="#" @click="openBountie"> Create a bountie </a>
       </p>
       <p>
-        <a href="#" style="color: white" @click="sponsor = true">
+        <a href="#" style="color: white" @click="sponsor = !sponsor">
           Sponsor this project
         </a>
       </p>
@@ -51,12 +51,12 @@
 import { defineComponent, computed } from 'vue'
 import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
-import ResumeBountie from '@/components/ResumeBountie.vue'
+import AboutBountie from '@/components/AboutBountie.vue'
 import SponsorProject from '@/components/SponsorProject.vue'
 
 export default defineComponent({
   name: 'FullRecap',
-  components: { Card, ResumeBountie, SponsorProject },
+  components: { Card, AboutBountie, SponsorProject },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)

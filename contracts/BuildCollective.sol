@@ -53,6 +53,7 @@ contract BuildCollective is Ownable {
   event EntrepriseSignedUp(address indexed ownerAddress, Entreprise indexed entreprise);
   event ProjectCreated(address indexed ownerAddress, Project indexed project);
   event BountieOpened(address indexed openerAddress, Bountie indexed issue);
+  event BountieClosed(address indexed solverAddress, Bountie indexed issue);
 
   //User
   function allUsers() external view returns (address[] memory) {
@@ -157,16 +158,17 @@ contract BuildCollective is Ownable {
     return bountie;
   }
 
-  function closeBountie(uint256 projectId, uint256 bountieId, address payable solver) public payable returns (bool){
+  function closeBountie(uint256 projectId, uint256 bountieId) public payable returns (bool){
     for (uint i = 0; i < bounties[projectId].length; i++){
       if (bounties[projectId][i].id == bountieId) {
         for(uint j = 0; j < projects[bounties[projectId][i].opener].length; j++){
           if(projects[bounties[projectId][i].opener][j].id == projectId){
             for(uint k = 0; j < projects[bounties[projectId][i].opener][j].contributors.length; k++){
-              if(projects[bounties[projectId][i].opener][j].contributors[k] == solver){
+              if(projects[bounties[projectId][i].opener][j].contributors[k] == msg.sender){
                 bounties[projectId][i].resolved = true;
-                bounties[projectId][i].solver = solver;
-                solver.send(bounties[projectId][i].reward);
+                bounties[projectId][i].solver = msg.sender;
+                msg.sender.send(bounties[projectId][i].reward);
+                emit BountieOpened(msg.sender, bounties[projectId][i]);
                 return true;
               }
             }

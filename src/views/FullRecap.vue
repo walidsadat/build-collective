@@ -41,8 +41,7 @@
         :owner-address="this.project.ownerAddress"
         v-if="sponsor"
         @close="sponsor = false; updateProjectBalance"
-      >
-      </sponsor-project>
+      />
     </div>
   </card>
 </template>

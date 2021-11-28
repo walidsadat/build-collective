@@ -8,6 +8,11 @@
       <div class="explanations">
         <p><b>Username: </b>{{ account.username }}</p>
         <p><b>Balance: </b>{{ account.balance }} tokens</p>
+        <p>
+        <a href="#" style="color: white" @click="addTokens">
+          Add balance (for tests only)
+        </a>
+        </p>
       </div>
     </card>
     <spacer :size="24" />
@@ -29,6 +34,15 @@
           </p>
         </div>
         <p><b>Balance: </b>{{ entreprise.balance }} tokens</p>
+        <p>
+        <a href="#" style="color: white" @click="addBalance = !addBalance">
+          Add balance
+          </a>
+        </p>
+      <add-balance-entreprise
+        v-if="addBalance"
+        @close="addBalance = false; updateEntrepriseBalance"
+      />
       </div>
     </card>
     <spacer :size="24" />
@@ -85,10 +99,11 @@ import { useStore } from 'vuex'
 import Card from '@/components/Card.vue'
 import Spacer from '@/components/Spacer.vue'
 import AboutProject from '@/components/AboutProject.vue'
+import AddBalanceEntreprise from '@/components/AddBalanceEntreprise.vue'
 
 export default defineComponent({
   name: 'Account',
-  components: { AboutProject, Spacer, Card },
+  components: { AboutProject, Spacer, Card, AddBalanceEntreprise },
   setup() {
     const store = useStore()
     const address = computed(() => store.state.account.address)
@@ -103,6 +118,8 @@ export default defineComponent({
     const entreprise = null
     const entrepriseMembers: any[] = []
     const projects: any[] = []
+    const addBalance = false
+    
     return {
       account,
       username,
@@ -110,10 +127,11 @@ export default defineComponent({
       entreprise,
       entrepriseMembers,
       projects,
+      addBalance
     }
   },
   methods: {
-    async updateAccount() {
+    async updateAccount()  {
       const { address, contract } = this
       this.account = await contract.methods.user(address).call()
     },
@@ -126,7 +144,7 @@ export default defineComponent({
     },
     async addTokens() {
       const { contract } = this
-      await contract.methods.addBalance(200).send()
+      await contract.methods.addBalance(100).send()
       await this.updateAccount()
     },
   },

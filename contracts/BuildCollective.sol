@@ -92,6 +92,13 @@ contract BuildCollective is Ownable {
     return entreprises[msg.sender];
   }
 
+  function addBalanceEntreprise(uint256 amount) public returns (bool) {
+    require(users[msg.sender].registered);
+    entreprises[msg.sender].balance += amount;
+    users[msg.sender].balance -= amount;
+    return true;
+  }
+
   //Project
   function userProjects(address owner) public view returns (Project[] memory){
     return projects[owner];
@@ -167,8 +174,8 @@ contract BuildCollective is Ownable {
               if(projects[bounties[projectId][i].opener][j].contributors[k] == msg.sender){
                 bounties[projectId][i].resolved = true;
                 bounties[projectId][i].solver = msg.sender;
-                msg.sender.send(bounties[projectId][i].reward);
-                emit BountieOpened(msg.sender, bounties[projectId][i]);
+                users[msg.sender].balance += bounties[projectId][i].reward;
+                emit BountieClosed(msg.sender, bounties[projectId][i]);
                 return true;
               }
             }

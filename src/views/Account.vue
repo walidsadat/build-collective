@@ -119,7 +119,7 @@ export default defineComponent({
     const entrepriseMembers: any[] = []
     const projects: any[] = []
     const addBalance = false
-    
+
     return {
       account,
       username,
@@ -127,11 +127,11 @@ export default defineComponent({
       entreprise,
       entrepriseMembers,
       projects,
-      addBalance
+      addBalance,
     }
   },
   methods: {
-    async updateAccount()  {
+    async updateAccount() {
       const { address, contract } = this
       this.account = await contract.methods.user(address).call()
     },

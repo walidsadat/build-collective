@@ -1,7 +1,10 @@
 <template>
   <div style="padding: 12px">
     <h2>{{ project.name }}</h2>
-    <p> <b>Owner: </b> {{ project.belongsToUser ? project.owner.username : project.owner.name }} </p>
+    <p>
+      <b>Owner: </b>
+      {{ project.belongsToUser ? project.owner.username : project.owner.name }}
+    </p>
     <div>
       <b>Contributors: </b>
       <p
@@ -9,7 +12,7 @@
         v-bind:key="contributor"
         style="padding-left: 10px"
       >
-        {{contributor}}
+        {{ contributor }}
       </p>
     </div>
     <p><b>Balance: </b>{{ project.balance }} tokens</p>
@@ -38,7 +41,7 @@ export default defineComponent({
         query: {
           id: this.project.id,
           ownerAddress: this.project.ownerAddress,
-        }
+        },
       })
     },
   },

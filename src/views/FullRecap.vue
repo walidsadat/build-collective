@@ -40,7 +40,10 @@
         :id-project="this.project.id"
         :owner-address="this.project.ownerAddress"
         v-if="sponsor"
-        @close="sponsor = false; updateProjectBalance"
+        @close="
+          sponsor = false
+          updateProjectBalance
+        "
       />
     </div>
   </card>

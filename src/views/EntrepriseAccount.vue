@@ -67,14 +67,16 @@ export default defineComponent({
       const { contract, entrepriseName, members, balance } = this
       const name = entrepriseName.trim().replace(/ /g, '_')
       await contract.methods.signUpEntreprise(name, members, balance).send()
-      this.entrepriseAccount = await contract.methods.entreprise(this.address).call()
+      this.entrepriseAccount = await contract.methods
+        .entreprise(this.address)
+        .call()
       await this.$router.push({ name: 'Account' })
     },
   },
   async mounted() {
     const { address, contract } = this
     this.entrepriseAccount = await contract.methods.entreprise(address).call()
-    for (const address of (await contract.methods.allUsers().call())) {
+    for (const address of await contract.methods.allUsers().call()) {
       const account = await contract.methods.user(address).call()
       this.users.push({ address: address, account: account })
     }
@@ -83,7 +85,6 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
-
 .input-username {
   background: transparent;
   border: none;

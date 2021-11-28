@@ -41,9 +41,13 @@ export default defineComponent({
     return { opener, solver, showBountie }
   },
   async mounted() {
-    this.opener = (await this.contract.methods.user(this.bountie.opener).call()).username
+    this.opener = (
+      await this.contract.methods.user(this.bountie.opener).call()
+    ).username
     if (this.bountie.resolved)
-      this.solver = (await this.contract.methods.user(this.bountie.solver).call()).username
+      this.solver = (
+        await this.contract.methods.user(this.bountie.solver).call()
+      ).username
   },
 })
 </script>

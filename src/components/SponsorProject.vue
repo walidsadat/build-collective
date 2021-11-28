@@ -46,7 +46,7 @@ export default defineComponent({
   },
   data() {
     const insufficientBalance = false
-    const amountNull = false;
+    const amountNull = false
     const balance = 0
     const amount = 0
     return { insufficientBalance, amountNull, balance, amount }
@@ -55,20 +55,21 @@ export default defineComponent({
     async sponsor() {
       if (this.amount > this.balance) {
         this.insufficientBalance = true
-      } else if(this.amount == 0){
+      } else if (this.amount == 0) {
         this.amountNull = true
-      }
-      else {
+      } else {
         this.insufficientBalance = false
-        await this.contract.methods.sponsorProject(this.ownerAddress, this.idProject, this.amount).send()
+        await this.contract.methods
+          .sponsorProject(this.ownerAddress, this.idProject, this.amount)
+          .send()
         this.$router.push({
           name: 'FullRecap',
           query: {
             id: this.idProject,
             ownerAddress: this.ownerAddress,
-        }
-      })
-      this.$emit('close')
+          },
+        })
+        this.$emit('close')
       }
     },
   },
@@ -76,13 +77,12 @@ export default defineComponent({
     const { address, contract } = this
     const account = await contract.methods.user(address).call()
     this.balance = account.balance
-    this.amount = Math.round(this.balance/10)
+    this.amount = Math.round(this.balance / 10)
   },
 })
 </script>
 
 <style lang="css">
-
 .input-username {
   background: transparent;
   border: none;

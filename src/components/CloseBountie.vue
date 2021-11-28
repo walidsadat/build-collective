@@ -36,7 +36,7 @@ export default defineComponent({
     async fixBountie() {
       const { contract, projectId, bountieId } = this
       await contract.methods.closeBountie(projectId, bountieId).call()
-      location.reload();
+      location.reload()
     },
   },
   async mounted() {

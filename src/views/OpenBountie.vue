@@ -2,10 +2,15 @@
   <form @submit.prevent="openBountie">
     <card title="Create a bountie">
       <label class="input-username"> Link </label>
-      <input type="text" class="input-username" v-model="link" placeholder="Link (to a Git)"/>
+      <input
+        type="text"
+        class="input-username"
+        v-model="link"
+        placeholder="Link (to a Git)"
+      />
       <label class="input-username">Amount of reward</label>
-      <input type="number" class="input-username" v-model="reward"/>
-      <button type="submit" class="button-link"/>
+      <input type="number" class="input-username" v-model="reward" />
+      <button type="submit" class="button-link" />
     </card>
   </form>
 </template>
@@ -33,15 +38,14 @@ export default defineComponent({
   },
   methods: {
     async openBountie() {
-      const { contract, id, owner, link, reward } =
-        this
+      const { contract, id, owner, link, reward } = this
       await contract.methods.openBountie(owner, id, link, reward).send()
       this.$router.push({
         name: 'FullRecap',
         query: {
           id: this.id,
           ownerAddress: this.owner,
-        }
+        },
       })
     },
   },
@@ -49,7 +53,6 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
-
 .input-username {
   background: transparent;
   border: none;

@@ -112,13 +112,9 @@ export default defineComponent({
         projectLink,
       } = this
       const name = projectName.trim().replace(/ /g, '_')
-      await contract.methods.createProject(
-          name,
-          contributors,
-          balance,
-          belongsToUser,
-          projectLink
-        ).send()
+      await contract.methods
+        .createProject(name, contributors, balance, belongsToUser, projectLink)
+        .send()
       await this.$router.push({ name: 'Account' })
     },
   },
@@ -128,7 +124,7 @@ export default defineComponent({
     if (account.registered) this.account = account
     const entreprise = await contract.methods.entreprise(address).call()
     if (entreprise.name) this.entreprise = entreprise
-    for (const address of (await contract.methods.allUsers().call())) {
+    for (const address of await contract.methods.allUsers().call()) {
       const account = await contract.methods.user(address).call()
       this.users.push({ address: address, account: account })
     }
@@ -137,7 +133,6 @@ export default defineComponent({
 </script>
 
 <style lang="css" scoped>
-
 .input-username {
   background: transparent;
   border: none;

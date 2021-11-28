@@ -163,7 +163,7 @@ export default defineComponent({
         this.entrepriseMembers.push(member.username)
       }
     }
-    const projects = await contract.methods.userProjects(address).call()
+    const projects = await contract.methods.getUserProjects().call()
     if (projects) {
       for (const project of projects) {
         let owner = project.belongsToUser

@@ -47,6 +47,7 @@ contract BuildCollective is Ownable {
   mapping(address => User) private users;
   mapping(address => Entreprise) private entreprises;
   mapping(address => Project[]) private projects;
+  mapping(address => Project[]) private allUserProjects;
   mapping(uint => Bountie[]) private bounties;
 
   event UserSignedUp(address indexed userAddress, User indexed user);
@@ -114,6 +115,10 @@ contract BuildCollective is Ownable {
     return projects[0];
   }
 
+  function getUserProjects() public view returns (Project[] memory){
+    return allUserProjects[msg.sender];
+  }
+
   function createProject(string memory name, address[] memory contributors, uint256 balance, bool belongsToUser, string memory link) public returns (Project memory){
     require(users[msg.sender].registered);
     require(bytes(name).length > 0);
@@ -128,6 +133,9 @@ contract BuildCollective is Ownable {
     CptProject++;
     Project memory project = Project(CptProject, name, msg.sender, contributors, balance, belongsToUser, link);
     projects[msg.sender].push(project);
+    for(uint i = 0; i < contributors.length; i++){
+      allUserProjects[contributors[i]].push(project);
+    }
     emit ProjectCreated(msg.sender, project);
     return project;
   }

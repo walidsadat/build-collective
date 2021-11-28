@@ -1,3 +1,8 @@
+Work done by : 
+> Amine BENSLIMANE
+
+> Walid SADAT
+
 # Build Collective
 
 Welcome to the DAAR project. The idea will be to implement an OpenCollective competitor

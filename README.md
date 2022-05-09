@@ -1,7 +1,7 @@
 Work done by : 
-> Amine BENSLIMANE
+- Amine BENSLIMANE
 
-> Walid SADAT
+- Walid SADAT
 
 # Build Collective
 
